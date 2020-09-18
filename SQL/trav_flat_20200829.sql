@@ -1,4 +1,22 @@
+/* variables for analysis
+RaceNo
+   TrackNo
+   Jockey
+   BetPerc
+   MoneyRank
+   WinsPerc
+   WinOdds
+   RekordTid
+   PointsPerc
+   WinPercCurrent
+   AvgOdds
+   PlacePerc
+   Trainer
+   JockeyRank
+   TrainerRank
 
+
+ */
 create table flat as
 SELECT
 a.horseid,
@@ -9,6 +27,7 @@ a.spar,
 a.distans,
 a.tillagg,
 a.placering,
+       CASE when a.placering = '1' then 1 else 0 end  as won,
 a.tid,
 a.odds,
 a.kusk,
@@ -19,7 +38,7 @@ b.banforh,
 b.v75 as avd75,
 b.forstapris,
 tvlid,
-v1,
+v1, --agare segerP
 v2,
 v3,
 v4,
@@ -28,7 +47,7 @@ v6,
 v7,
 v8,
 v9,
-v10,
+v10, --prissumma totalt
 v11,
 v12,
 v13,
@@ -43,7 +62,7 @@ v21,
 v22,
 v23,
 v24,
-v25,
+v25, --odds
 v26,
 v27,
 v28,
@@ -51,25 +70,25 @@ v29,
 v30,
 v31,
 v32,
-v33,
+v33, --segerP horse
 v34,
 v35,
 v36,
 v37,
 v38,
-v39,
-v40,
-v41,
+v39, --ranking streck
+v40, --StreckP
+v41, --basta tid
 v42,
-v43,
-v44,
+v43, --tillagg meter
+v44, --segerP tranare
 v45,
 v46,
-v47,
+v47, --v75 segerP
 v48,
 v49,
 v50,
-v51,
+v51, --Platsprocent enligt inställning beräkningsdagar.
 v52,
 v53,
 v54,
@@ -86,18 +105,18 @@ v63,
 v64,
 c.v65,
 v66,
-v67,
+v67, --atgpoang
 v68,
 v69,
 v70,
 v71,
-v72,
+v72, --kuskrank aktuall tavling
 v73,
 antstreck,
 v74,
 c.v75,
-v76,
-v77,
+v76, --antal streck
+v77, --streckProcent
 v78,
 v79,
 v80,
@@ -121,7 +140,10 @@ v97,
 v98,
 v99,
 coalesce(sum(case when plac = '1' then 1 else 0 end) over (partition by a.horseid, extract(year from a.datum) order by a.datum rows between unbounded preceding and 1 preceding)::float4/
-count(*) over (partition by a.horseid, extract(year from a.datum)  order by a.datum rows between unbounded preceding and 1 preceding),0) as win_perc_curr
+count(*) over (partition by a.horseid, extract(year from a.datum)  order by a.datum rows between unbounded preceding and 1 preceding),0) as WinPercCurrent,
+
+coalesce(sum(case when plac IN (1,2,3) then 1 else 0 end) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding)::float4/
+         count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as PlaceP
 
 FROM
      lopp a

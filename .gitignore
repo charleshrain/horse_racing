@@ -193,3 +193,7 @@ po/*~
 .idea/vcs.xml
 
 /Python/chromedriver-2
+/.idea/dataSources.xml
+/.idea/rAvailablePackageCache.xml
+/.idea/rGraphicsSettings.xml
+/.idea/rSettings.xml

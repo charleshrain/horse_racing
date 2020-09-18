@@ -29,6 +29,7 @@ rm $DIR/racedata/*.txt
 for i in $DIR/racedata/*
 do
     sed 's/\\N/NULL/g' "$i" > "${i%.utf}.txt"
+    # use tr -D "\\N"
 done
 
 rm $DIR/racedata/*.utf

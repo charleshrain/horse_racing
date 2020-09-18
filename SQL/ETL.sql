@@ -7,7 +7,7 @@ CREATE TABLE lopp
     id        int        NOT NULL,
     horseid   int        NOT NULL,
     datum     date       NOT NULL,
-    bana      varchar(5) NOT NULL,
+    bana      varchar(5) DEFAULT NULL,
     lopp      smallint   NOT NULL,
     spar      smallint   NOT NULL,
     distans   char(2)    DEFAULT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE tvl
 (
     id         int        NOT NULL,
     datum      date       NOT NULL,
-    bana       varchar(5) NOT NULL,
+    bana       varchar(5) DEFAULT NULL,
     lopp       smallint   NOT NULL,
     startsatt  varchar(1)          DEFAULT NULL,
     distans    varchar(1)          DEFAULT NULL,
