@@ -93,16 +93,16 @@ for (i in 1:nrow(Overview))
 {
   query <-
     build_sql(
-      "select won, a.TrackNo, ", as.character(i) ," as RaceNo, a.BetPerc, a.MoneyRank, a.WinsPerc, a.WinOdds, a.WinOdds,a.PointsPerc, a.WinPercCurrent, a.AvgOdds, a.PlacePerc, a.JockeyRank, a.TrainerRank from V752 a where a.division = ",
+      "select won, a.trackno, ", as.character(i) ," as raceno, a.betperc, a.moneyrank, a.winsperc, a.winodds,a.pointsperc, a.winperccurrent, a.placep, a.jockeyrank, a.trainerwinperc from V75flat a where a.division = ",
       as.character(Overview[i, 2]) ,
       "",
-      " and a.Class = ",
+      " and a.distans = ",
       as.character(Overview[i, 3]),
       "",
-      " and a.StartMode = ",
+      " and a.startsatt = ",
       as.character(Overview[i, 4]),
       
-      "and a.TrackNo != 0;",
+      "and a.trackno != 0;",
       con = con)
   
   train <- rbind(train, dbGetQuery(con, query))
@@ -131,7 +131,7 @@ registerDoParallel(cl)
 for (i in 1:nrow(Overview))
 {
   #create subset
-  lopp <- oldraces %>% filter(lopp==i)
+  lopp <- oldraces %>% filter(raceno==i)
   
   #create training and testing sets
   lopp_split <- initial_split(lopp, strata = won) 
