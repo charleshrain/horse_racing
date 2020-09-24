@@ -40,7 +40,7 @@ b.v75 as avd75,
 b.forstapris,
 tvlid,
 v1 as ownerWinPerc, --agare segerP
-percent_rank() over (partition by tvlid order by v10 asc) as MoneyRank, --prissumma totalt v10
+case when max(v10) over (partition by tvlid order by v10 asc) = 0 then 0 else v10/max(v10) over (partition by tvlid order by v10 asc) end as MoneyRank, --prissumma totalt v10
 v25, --odds
 v33 as WinsPerc, --segerP horse
 v39 as rank_streck, --ranking streck
@@ -51,7 +51,7 @@ v44 as trainerWinPerc, --segerP tranare
 v47 as v75WinPerc, --v75 segerP
 v51 as PlacePerc, --Platsprocent enligt inställning beräkningsdagar.
 c.v65 as avdV65,
-percent_rank() over (partition by tvlid order by v67 asc) as PointsPerc,
+case when max(v67) over (partition by tvlid order by v67 asc) = 0 then 0 else v67/max(v67) over (partition by tvlid order by v67 asc) end as PointsPerc,
 v72 as jockeyRank, --kuskrank aktuall tavling
 antstreck as BetPerc4,
 v76 as BetPerc2, --antal streck
