@@ -2,9 +2,9 @@
 RaceNo
    TrackNo
    Jockey
-   BetPerc
+   BetPerc --doesn't seem to have correct numbers
    MoneyRank
-   WinsPerc
+   WinsPerc - check calc with actual
    WinOdds
    RekordTid
    PointsPerc
@@ -17,59 +17,69 @@ RaceNo
 
 
  */
+
+create table lopp2 as
+select * from (
+                  select a.*,
+
+                         coalesce(sum(case when a.placering = '1' then 1 else 0 end) over (partition by a.horseid, extract(year from a.datum) order by a.datum rows between unbounded preceding and 1 preceding)::float4/
+                                  count(*) over (partition by a.horseid, extract(year from a.datum)  order by a.datum rows between unbounded preceding and 1 preceding),0) as WinPercCurrent,
+
+                         coalesce(sum(case when a.placering IN ('1','2', '3') then 1 else 0 end) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding)::float4/
+                                  count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as PlaceP,
+                         coalesce(sum(case when a.placering = '1' then 1 else 0 end) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding)::float4/
+                                  count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as WinsPerc
+
+                  FROM lopp a) mytab;
+
+
+
+
+
 create table flat as
 SELECT
 a.horseid,
 a.datum,
 a.bana,
-a.lopp,
+--a.lopp,
 a.spar as TrackNo,
 a.distans,
 a.tillagg,
 a.placering,
        CASE when a.placering = '1' then 1 else 0 end  as won,
+a.WinPercCurrent,
+a.WinsPerc,
+a.placep,
 a.tid,
-a.odds as WinOdds,
---avg(CASE WHEN odds~E'^\\d+$' THEN odds::float4 ELSE NULL END ) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding) as AvgOdds,
-a.kusk as Jockey,
+--a.kusk as Jockey,
 a.verklspar,
 b.startsatt,
 b.division,
 b.banforh,
 b.v75 as avd75,
-b.forstapris,
 tvlid,
 v1 as ownerWinPerc, --agare segerP,
-case when v10 = 0 then 0 else v10::decimal/max(v10::decimal) over (partition by tvlid) end  as MoneyRank, --prissumma totalt v10
-v25, --odds
-v33 as WinsPerc, --segerP horse
-v39 as rank_streck, --ranking streck
+case when v11 = 0 then 0 else v11::decimal/max(v11::decimal) over (partition by tvlid) end  as MoneyRank,
+
+v39 as StreckRank, --ranking streck
 v40 as BetPerc,
-v41 as RekordTid, --basta tid
+--v41 as RekordTid, --basta tid
 v43 as tillaggMetre, --tillagg meter
 v44 as trainerWinPerc, --segerP tranare
-v47 as v75WinPerc, --v75 segerP
-v51 as PlacePerc, --Platsprocent enligt inställning beräkningsdagar.
-c.v65 as avdV65,
+-- c.v65 as avdV65,
 case when v67 = 0 then 0 else v67::decimal/max(v67::decimal) over (partition by tvlid) end  as PointsPerc,
-v72 as jockeyRank, --kuskrank aktuall tavling
-antstreck as BetPerc4,
-v76 as BetPerc2, --antal streck
-v77 as BetPerc3, --streckProcent
-
-coalesce(sum(case when plac = '1' then 1 else 0 end) over (partition by a.horseid, extract(year from a.datum) order by a.datum rows between unbounded preceding and 1 preceding)::float4/
-count(*) over (partition by a.horseid, extract(year from a.datum)  order by a.datum rows between unbounded preceding and 1 preceding),0) as WinPercCurrent,
-
-coalesce(sum(case when plac IN ('1','2', '3') then 1 else 0 end) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding)::float4/
-         count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as PlaceP
+v72 as jockeyRank --kuskrank aktuall tavling
 
 FROM
-     lopp a
+     lopp2 a
         JOIN
     tvl b ON a.datum = b.datum AND a.bana = b.bana
         AND a.lopp = b.lopp
         JOIN
     prog c ON b.id = c.tvlid AND a.horseid = c.horseid;
+
+create table v75flat as
+    select * from flat where avd75 between 1 and 7;
 
 -- ALTER TABLE flat
 -- ADD COLUMN tidrnk integer;

@@ -93,7 +93,7 @@ for (i in 1:nrow(Overview))
 {
   query <-
     build_sql(
-      "select won, a.trackno, ", as.character(i) ," as raceno, a.betperc, a.moneyrank, a.winsperc, a.winodds,a.pointsperc, a.winperccurrent, a.placep, a.jockeyrank, a.trainerwinperc from V75flat a where a.division = ",
+      "select won, a.trackno, ", as.character(i) ," as raceno, a.betperc, a.moneyrank, a.winsperc,/* a.winodds,*/ a.pointsperc, a.winperccurrent, a.placep, a.jockeyrank, a.trainerwinperc from V75flat a where a.division = ",
       as.character(Overview[i, 2]) ,
       "",
       " and a.distans = ",
@@ -224,7 +224,7 @@ for (i in 1:nrow(Overview))
   final_res %>%
     collect_metrics()
   
-  predictions <- rbind(predictions, cbind(filter(pred, lopp==i), predict(finalfit,filter(pred, lopp==i), type = "prob")))
+  predictions <- rbind(predictions, cbind(filter(pred, raceno==i), predict(finalfit,filter(pred, raceno==i), type = "prob")))
   
 }
 
