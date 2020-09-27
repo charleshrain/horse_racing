@@ -53,7 +53,7 @@ a.placep,
 a.tid,
 --a.kusk as Jockey,
 a.verklspar,
-case when trackno between 1 and 7 then 'FS' else 'BS' end as framspar,
+case when a.spar between 1 and 7 then 'FS' else 'BS' end as framspar,
 b.startsatt,
 b.division,
 b.banforh,
@@ -79,26 +79,9 @@ FROM
         JOIN
     prog c ON b.id = c.tvlid AND a.horseid = c.horseid;
 
+
+--create v75 table
 create table v75flat as
     select * from flat where avd75 between 1 and 7;
 
--- ALTER TABLE flat
--- ADD COLUMN tidrnk integer;
 
--- with new_values as (
---    SELECT tvlid, horseid,
---           percent_rank() over (partition by tvlid order by v33 desc) as rank
---     from travels
---
--- )
--- update travels as tr
---   set delete = nv.rank
--- from new_values nv
--- where nv.tvlid = tr.tvlid and nv.horseid = tr.horseid;
---
--- --won
--- --pngrank
--- --intkrank
--- --tidrank
--- --kuskrank
--- end;
