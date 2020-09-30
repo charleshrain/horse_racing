@@ -28,9 +28,17 @@ select * from (
                          coalesce(sum(case when a.placering IN ('1','2', '3') then 1 else 0 end) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding)::float4/
                                   count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as PlaceP,
                          coalesce(sum(case when a.placering = '1' then 1 else 0 end) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding)::float4/
-                                  count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as WinsPerc
+                                  count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as WinsPerc,
+                  case
+                      when tid ~ '\d\d\d\w+' and placering in ('1', '2', '3', '4', '5', '6', '7') or
+                      tid ~ '\d\d\w+' and placering in ('1', '2', '3', '4', '5', '6', '7')
+                      then NULLIF(regexp_replace(tid, '\D', '', 'g'), '')::numeric
+                      else NULL end as tidclean,
+                  case when lower(distans) like 'k%' then 'K' when  lower(distans)  like 'l%' then 'L'
+                      when lower(distans)  like 'm%' then 'M' when lower(distans)  like '%s' then 'S' else 'UNKNOWN' end as distans2
 
-                  FROM lopp a) mytab;
+
+FROM lopp a) mytab;
 
 
 
@@ -51,6 +59,7 @@ a.WinPercCurrent,
 a.WinsPerc,
 a.placep,
 a.tid,
+min(tidclean) over (partition by a.horseid, b.startsatt order by a.datum rows between unbounded preceding and 1 preceding) as mintid,
 --a.kusk as Jockey,
 a.verklspar,
 case when a.spar between 1 and 7 then 'FS' else 'BS' end as framspar,
