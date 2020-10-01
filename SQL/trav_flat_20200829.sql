@@ -1,22 +1,4 @@
-/* variables for analysis
-RaceNo
-   TrackNo
-   Jockey
-   BetPerc --doesn't seem to have correct numbers
-   MoneyRank
-   WinsPerc - check calc with actual
-   WinOdds
-   RekordTid
-   PointsPerc
-   WinPercCurrent
-   AvgOdds
-   PlacePerc
-   Trainer
-   JockeyRank
-   TrainerWinPerc
 
-
- */
 
 create table lopp2 as
 select * from (
@@ -29,18 +11,19 @@ select * from (
                                   count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as PlaceP,
                          coalesce(sum(case when a.placering = '1' then 1 else 0 end) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding)::float4/
                                   count(*) over (partition by a.horseid order by a.datum rows between unbounded preceding and 1 preceding),0) as WinsPerc,
-                  case
-                      when tid ~ '\d\d\d\w+' and placering in ('1', '2', '3', '4', '5', '6', '7') or
-                      tid ~ '\d\d\w+' and placering in ('1', '2', '3', '4', '5', '6', '7')
-                      then NULLIF(regexp_replace(tid, '\D', '', 'g'), '')::numeric
-                      else NULL end as tidclean,
+                         case
+                             when (tid similar to '\d\d\d\w+' or tid similar to '\d\d\d' or tid similar to '\d\d\' or
+                                   tid similar to '\d\d\w+') and placering in ('1', '2', '3', '4', '5', '6', '7')
+                                 then regexp_replace(tid, '[[:alpha:]]', '', 'g')::numeric
+                             when NOT (tid similar to '\d\d\d\w+' or tid similar to '\d\d\d' or tid similar to '\d\d\' or
+                                       tid similar to '\d\d\w+') and placering in ('1', '2', '3', '4', '5', '6', '7')
+                             then NULL end as tidclean,
                   case when lower(distans) like 'k%' then 'K' when  lower(distans)  like 'l%' then 'L'
                       when lower(distans)  like 'm%' then 'M' when lower(distans)  like '%s' then 'S' else 'UNKNOWN' end as distans2
 
 
+
 FROM lopp a) mytab;
-
-
 
 
 
@@ -70,7 +53,6 @@ b.v75 as avd75,
 tvlid,
 v1 as ownerWinPerc, --agare segerP,
 case when v11 = 0 then 0 else v11::decimal/max(v11::decimal) over (partition by tvlid) end  as MoneyRank,
-
 v39 as StreckRank, --ranking streck
 v40 as BetPerc,
 --v41 as RekordTid, --basta tid
